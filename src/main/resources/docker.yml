@@ -1,0 +1,45 @@
+version: '3.8'
+services:
+  node01:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.5.0
+    container_name: node01
+    environment:
+      - node.name=node01
+      # Elasticsearch kümesindeki bir düğümün adını belirtir. Bu, düğümlerin birbirlerini tanımasına yardımcı olan bir parametredir.
+      - cluster.name=es-cluster-7
+      # Elasticsearch kümesinin adını belirtir. Tüm düğümler aynı küme adını kullanmalıdır.
+      - discovery.type=single-node
+      # Elasticsearch düğümü tek düğüm modunda çalıştırılır. Bu, küme kurulumunda yalnızca bir düğüm olduğunu gösterir.
+      - "ES_JAVA_OPTS=-Xms128m -Xmx128m"
+      # Elasticsearch JVM yapılandırmasını ayarlar.
+      - xpack.security.enabled=false
+      # Bu  yapılandırma , default şifre ve kullanıcı adını kaldırır
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - es-data01:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    networks:
+      - es-network
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.5.0
+    environment:
+      ELASTICSEARCH_HOSTS: http://node01:9200
+    ports:
+      - 5601:5601
+    networks:
+      - es-network
+    depends_on:
+      - node01
+
+volumes:
+  es-data01:
+    driver: local
+
+networks:
+  es-network:
+    driver: bridge
