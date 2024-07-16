@@ -16,6 +16,9 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 @Document(indexName = "favorite_candy")
 public class Candy {
 
+  @Id
+  private Integer id;
+
   @Field(type = FieldType.Text, name = "first_name")
   private String first_name;
 
